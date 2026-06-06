@@ -43,7 +43,7 @@ struct QuickAddView: View {
 
                 Section {
                     TextField("e.g. Chicken Breast", text: $viewModel.label)
-                    DatePicker("When", selection: $viewModel.date)
+                    DatePicker("When", selection: $viewModel.date, in: ...Date.now)
                     if !viewModel.isEditing {
                         Toggle("Save as favorite", isOn: $viewModel.saveAsFavorite)
                             .disabled(viewModel.label.trimmingCharacters(in: .whitespaces).isEmpty)

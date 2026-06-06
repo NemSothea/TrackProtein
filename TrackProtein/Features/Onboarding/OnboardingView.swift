@@ -139,7 +139,7 @@ struct OnboardingView: View {
                 .tint(.proteinOrange)
             }
 
-            Text("Based on \(Int(viewModel.weightKg)) kg × \(viewModel.goalType.gramsPerKg, specifier: "%.1f") g/kg for \(viewModel.goalType.title.lowercased()). You can change this anytime in Settings.")
+            Text("Based on \(Int(viewModel.weightKg)) kg × \(viewModel.goalType.gramsPerKg, specifier: "%.1f") g/kg for \(viewModel.goalType.title.lowercased()). You can change this anytime in Settings. This is general guidance, not medical advice.")
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)

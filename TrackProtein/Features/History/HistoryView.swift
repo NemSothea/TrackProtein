@@ -35,7 +35,7 @@ struct HistoryView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("History")
             .sheet(item: $viewModel.selectedDay) { day in
-                DayDetailView(day: day, profile: profile)
+                DayDetailView(date: day.date, profile: profile)
             }
         }
     }
@@ -82,13 +82,23 @@ struct HistoryView: View {
 }
 
 /// Entries for a single day — supports deleting and logging to past days.
+/// Queries live so deletes/additions update in place instead of showing stale data.
 struct DayDetailView: View {
-    let day: DaySummary
+    let date: Date
     let profile: UserProfile
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \ProteinEntry.date, order: .reverse) private var allEntries: [ProteinEntry]
     @State private var showAdd = false
+
+    private var dayEntries: [ProteinEntry] {
+        allEntries.filter { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+
+    private var total: Double {
+        dayEntries.reduce(0) { $0 + $1.grams }
+    }
 
     var body: some View {
         NavigationStack {
@@ -97,30 +107,35 @@ struct DayDetailView: View {
                     HStack {
                         Text("Total")
                         Spacer()
-                        Text("\(Int(day.total.rounded()))g of \(Int(profile.dailyTargetGrams.rounded()))g")
+                        Text("\(Int(total.rounded()))g of \(Int(profile.dailyTargetGrams.rounded()))g")
                             .bold()
-                            .foregroundStyle(day.total >= profile.dailyTargetGrams ? .green : Color.proteinOrange)
+                            .foregroundStyle(total >= profile.dailyTargetGrams ? .green : Color.proteinOrange)
                     }
                 }
                 Section("Entries") {
-                    ForEach(day.entries) { entry in
-                        HStack {
-                            Text(entry.label?.isEmpty == false ? entry.label! : "Protein")
-                            Spacer()
-                            Text("\(Int(entry.grams.rounded()))g")
-                                .foregroundStyle(.secondary)
+                    if dayEntries.isEmpty {
+                        Text("No entries this day.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(dayEntries) { entry in
+                            HStack {
+                                Text(entry.displayName)
+                                Spacer()
+                                Text("\(Int(entry.grams.rounded()))g")
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            context.delete(day.entries[index])
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                context.delete(dayEntries[index])
+                            }
+                            WidgetRefresher.refresh()
                         }
-                        WidgetRefresher.refresh()
-                        dismiss()
                     }
                 }
             }
-            .navigationTitle(day.date.formatted(.dateTime.day().month().year()))
+            .navigationTitle(date.formatted(.dateTime.day().month().year()))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -134,7 +149,7 @@ struct DayDetailView: View {
             }
             .sheet(isPresented: $showAdd) {
                 // Log to this past day at midday by default.
-                QuickAddView(presetDate: day.date.addingTimeInterval(12 * 3600))
+                QuickAddView(presetDate: date.addingTimeInterval(12 * 3600))
             }
         }
     }

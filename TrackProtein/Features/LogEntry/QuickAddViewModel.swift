@@ -28,7 +28,8 @@ final class QuickAddViewModel {
             label = entry.label ?? ""
             date = entry.date
         } else if let presetDate {
-            date = presetDate
+            // Never preset into the future (e.g. "noon" on today's row before noon).
+            date = min(presetDate, .now)
         }
     }
 

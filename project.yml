@@ -41,6 +41,16 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: 1
+  TrackProteinTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - TrackProteinTests
+    dependencies:
+      - target: TrackProtein
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
   TrackProteinWidgets:
     type: app-extension
     platform: iOS
@@ -65,3 +75,16 @@ targets:
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: 1
         SKIP_INSTALL: YES
+schemes:
+  TrackProtein:
+    build:
+      targets:
+        TrackProtein: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - TrackProteinTests
+    archive:
+      config: Release

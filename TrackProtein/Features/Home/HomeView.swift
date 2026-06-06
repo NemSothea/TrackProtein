@@ -133,7 +133,7 @@ struct HomeView: View {
         Button { viewModel.entryToEdit = entry } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(entry.label?.isEmpty == false ? entry.label! : "Protein")
+                    Text(entry.displayName)
                         .font(.body)
                     Text(entry.date, style: .time)
                         .font(.caption)

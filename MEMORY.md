@@ -2,7 +2,7 @@
 
 > Living task tracker. Update statuses here whenever work completes; this is the single source of truth for "where are we?". Strategy: **build all phases, deploy once at the end** (no App Store until Phase 3 done).
 
-**Last updated:** 2026-06-06 · **Current focus:** Polish pass → Phase 2
+**Last updated:** 2026-06-06 (polish pass done) · **Current focus:** Phase 2 — food search
 
 ---
 
@@ -21,14 +21,15 @@
 - [x] GitHub repo + README + design docs + .claude tooling
 - [ ] F7 CloudKit sync — ⏸ blocked: needs paid Apple Developer account ($99)
 
-## 🔧 Polish backlog (from /audit 2026-06-06)
+## 🔧 Polish backlog (from /audit 2026-06-06) — ✅ DONE
 
-- [ ] Replace guarded force unwraps `entry.label!` → nil-coalescing (HomeView, HistoryView)
-- [ ] Cap QuickAdd DatePicker at `...Date.now` (block future-date logging)
-- [ ] Read version from Bundle instead of hardcoded "1.0" (SettingsView)
-- [ ] DayDetail: refresh after delete instead of force-dismiss
-- [ ] Unit tests for `GoalCalculator` + `StreakCalculator` (needs test target in project.yml)
-- [ ] Add medical disclaimer line to onboarding target step
+- [x] Replace guarded force unwraps → `ProteinEntry.displayName` (HomeView, HistoryView)
+- [x] Cap QuickAdd DatePicker at `...Date.now`; clamp presetDate to now
+- [x] Read version from Bundle instead of hardcoded "1.0" (SettingsView)
+- [x] DayDetail: live `@Query` — deletes update in place, no force-dismiss, empty state added
+- [x] Unit tests — `TrackProteinTests` target (Swift Testing), 12 tests green for GoalCalculator + StreakCalculator
+- [x] Medical disclaimer line in onboarding target step
+- [x] CloudKit-compatible models — all @Model properties now have defaults (flip `cloudKitDatabase` at launch)
 
 ## 🔜 Phase 2 — Food data
 
