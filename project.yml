@@ -34,6 +34,7 @@ targets:
           - CFBundleURLName: com.sothea.trackprotein
             CFBundleURLSchemes:
               - trackprotein
+        NSCameraUsageDescription: TrackProtein uses the camera to scan food barcodes so you can log protein quickly.
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:

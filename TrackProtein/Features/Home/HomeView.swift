@@ -24,7 +24,15 @@ struct HomeView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Today")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button { viewModel.showBarcodeScan = true } label: {
+                        Image(systemName: "barcode.viewfinder")
+                            .foregroundStyle(Color.proteinOrange)
+                    }
+                    Button { viewModel.showFoodSearch = true } label: {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(Color.proteinOrange)
+                    }
                     Button { viewModel.showQuickAdd = true } label: {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
@@ -34,6 +42,12 @@ struct HomeView: View {
             }
             .sheet(isPresented: $viewModel.showQuickAdd) {
                 QuickAddView()
+            }
+            .sheet(isPresented: $viewModel.showFoodSearch) {
+                FoodSearchView()
+            }
+            .sheet(isPresented: $viewModel.showBarcodeScan) {
+                BarcodeScanView()
             }
             .sheet(item: $viewModel.entryToEdit) { entry in
                 QuickAddView(entry: entry)
@@ -73,7 +87,7 @@ struct HomeView: View {
             Section("Favorites") {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
-                        ForEach(favorites) { favorite in
+                        ForEach(viewModel.orderedFavorites(favorites)) { favorite in
                             favoriteChip(favorite)
                         }
                     }

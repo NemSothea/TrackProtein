@@ -2,7 +2,7 @@
 
 > Living task tracker. Update statuses here whenever work completes; this is the single source of truth for "where are we?". Strategy: **build all phases, deploy once at the end** (no App Store until Phase 3 done).
 
-**Last updated:** 2026-06-06 (polish pass done) · **Current focus:** Phase 2 — food search
+**Last updated:** 2026-06-06 (Phase 2 built) · **Current focus:** Phase 2 on-device testing → Phase 3
 
 ---
 
@@ -31,13 +31,15 @@
 - [x] Medical disclaimer line in onboarding target step
 - [x] CloudKit-compatible models — all @Model properties now have defaults (flip `cloudKitDatabase` at launch)
 
-## 🔜 Phase 2 — Food data
+## ✅ Phase 2 — Food data (built 2026-06-06; needs real-device testing)
 
-- [ ] F11 Food search — USDA FoodData Central + Open Food Facts clients (`Core/Services/FoodAPIClient`)
-- [ ] F11 Search UI — results list, recent searches, local caching
-- [ ] F13 Portion picker (per 100g / per serving / custom)
-- [ ] F12 Barcode scan — VisionKit `DataScannerViewController` → OFF lookup
-- [ ] F14 Smarter favorites (auto-suggest by time of day)
+- [x] F11 Food search — `FoodSearchService`: OFF (primary, no key) + USDA (DEMO_KEY, rate-limited — replaceable constant) merged & deduped. ⚠️ OFF `sort_by=unique_scans_n` causes 503 — don't re-add
+- [x] F11 Search UI — debounced (400ms), in-memory cache, recent searches (UserDefaults), empty/offline states
+- [x] F13 Portion picker — per-100g slider + quick chips (50/100/150/200g), per-serving stepper fallback, save-as-favorite
+- [x] F12 Barcode scan — VisionKit DataScanner (EAN13/8, UPC-E, Code128) → OFF v2 lookup → portion picker; camera-unavailable + product-not-found states; camera permission string added
+- [x] F14 Smarter favorites — `lastUsedHour` on FavoriteFood, chips ordered by circular hour-distance then recency
+- [ ] Verify on iPhone: search results quality, barcode scan flow (scanner needs real camera — simulator can't test)
+- [ ] Consider: real USDA API key before launch (DEMO_KEY = ~30 req/hr shared limit)
 
 ## 🔮 Phase 3 — AI + Premium
 

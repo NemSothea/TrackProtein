@@ -9,6 +9,8 @@ final class FavoriteFood {
     var grams: Double = 0
     var sortOrder: Int = 0
     var lastUsed: Date = Date.now
+    /// Hour of day (0–23) this favorite was last logged — drives time-of-day suggestions.
+    var lastUsedHour: Int = 12
 
     init(name: String, grams: Double, sortOrder: Int = 0, lastUsed: Date = .now) {
         self.name = name

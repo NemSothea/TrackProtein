@@ -57,7 +57,9 @@ final class QuickAddViewModel {
         }
 
         if saveAsFavorite, !trimmedLabel.isEmpty {
-            context.insert(FavoriteFood(name: trimmedLabel, grams: grams))
+            let favorite = FavoriteFood(name: trimmedLabel, grams: grams)
+            favorite.lastUsedHour = Calendar.current.component(.hour, from: .now)
+            context.insert(favorite)
         }
 
         WidgetRefresher.refresh()
