@@ -2,6 +2,8 @@
 
 "Track protein. Nothing else." Fast, private, protein-only tracking app. Full product plan, phases, and timeline: see `PLAN.md`. Screen designs & design system: `docs/design/`.
 
+**Task tracking: `MEMORY.md` is the single source of truth for progress.** Read it at the start of work; tick items and bump "Last updated" whenever a task completes. Launch strategy: build ALL phases first, deploy once at the end — don't push toward TestFlight/submission early.
+
 ## Stack
 - SwiftUI + MVVM (`@Observable` ViewModels), iOS 17+, Swift 5 mode
 - SwiftData for persistence (CloudKit sync planned, not yet enabled)

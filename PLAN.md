@@ -164,6 +164,8 @@ Assumes **full-time, with Claude Code generating most of the implementation**. T
 
 > **Reality check:** 4 weeks holds if you make design decisions fast and test on-device daily. A safer commitment is **5–6 weeks**; 3 months was the no-AI-assistance number.
 
+> **Launch strategy (decided 2026-06-06):** no App Store deployment until ALL phases (1–3) are complete — build the full product first, launch once. Phase order stays the same; the Week-4 "submit" step moves to the end. Personal-device installs + (optionally) TestFlight with friends still recommended along the way so feedback isn't zero before launch.
+
 ### Part-time alternative (~15 h/wk)
 Same order, ~2.5× duration: **v1.0 in ~6–8 weeks.**
 
