@@ -1,0 +1,15 @@
+# Xcode
+*.xcodeproj
+xcuserdata/
+DerivedData/
+*.xcresult
+
+# XcodeGen-generated plists/entitlements (recreated by `xcodegen generate`)
+Configs/
+
+# SPM
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
