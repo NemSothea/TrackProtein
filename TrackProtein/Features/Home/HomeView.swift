@@ -25,6 +25,10 @@ struct HomeView: View {
             .navigationTitle("Today")
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
+                    Button { viewModel.showAILog = true } label: {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(Color.proteinOrange)
+                    }
                     Button { viewModel.showBarcodeScan = true } label: {
                         Image(systemName: "barcode.viewfinder")
                             .foregroundStyle(Color.proteinOrange)
@@ -48,6 +52,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $viewModel.showBarcodeScan) {
                 BarcodeScanView()
+            }
+            .sheet(isPresented: $viewModel.showAILog) {
+                AIGateView()
             }
             .sheet(item: $viewModel.entryToEdit) { entry in
                 QuickAddView(entry: entry)

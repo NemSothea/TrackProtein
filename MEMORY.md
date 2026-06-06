@@ -2,7 +2,7 @@
 
 > Living task tracker. Update statuses here whenever work completes; this is the single source of truth for "where are we?". Strategy: **build all phases, deploy once at the end** (no App Store until Phase 3 done).
 
-**Last updated:** 2026-06-06 (Phase 2 built) · **Current focus:** Phase 2 on-device testing → Phase 3
+**Last updated:** 2026-06-06 (Phase 3 built) · **Current focus:** Deploy AI proxy (user action) → on-device testing → launch block
 
 ---
 
@@ -41,14 +41,16 @@
 - [ ] Verify on iPhone: search results quality, barcode scan flow (scanner needs real camera — simulator can't test)
 - [ ] Consider: real USDA API key before launch (DEMO_KEY = ~30 req/hr shared limit)
 
-## 🔮 Phase 3 — AI + Premium
+## ✅ Phase 3 — AI + Premium (built 2026-06-06)
 
-- [ ] Claude API proxy (Cloudflare Worker — keeps key off-device)
-- [ ] F15 AI photo logging (vision → grams estimate w/ confidence range, editable before save)
-- [ ] F16 Natural-language logging ("2 eggs and a shake")
-- [ ] F17 Stats & insights (Swift Charts)
-- [ ] StoreKit 2 paywall — $2.99/mo · $19.99/yr · lifetime + restore purchases
-- [ ] F18 CSV export
+- [x] Claude API proxy — `proxy/worker.js` (Cloudflare Worker, fixed prompt + JSON schema server-side, APP_SECRET auth, model `claude-haiku-4-5` per PLAN §3). Deploy guide: `proxy/README.md`
+- [x] F15 AI photo logging — PhotosPicker + camera → downscale 1024px JPEG → proxy → editable estimate with range + confidence → `ProteinEntry(source: .ai)`
+- [x] F16 Natural-language logging ("2 eggs and a shake") — same sheet, Describe mode
+- [x] F17 Stats — Swift Charts: 7/30-day bars vs goal line, average, goal-hit count, best day, top 5 sources. Premium-gated
+- [x] StoreKit 2 paywall — monthly $2.99 / yearly $19.99 / lifetime $39.99, restore, `TrackProtein.storekit` local config wired into scheme; DEBUG dev-unlock toggle (StoreKit config doesn't apply to devicectl launches)
+- [x] F18 CSV export — ShareLink in Settings, premium-gated
+- [ ] **USER ACTION: deploy proxy** (Cloudflare account + Anthropic API key, ~10 min — `proxy/README.md`), then set `proxyURL`/`appSecret` in `AIEstimationService.swift` (⚠️ don't commit the secret — move to a gitignored config if needed)
+- [ ] Test AI flow + paywall on device (use DEBUG dev-unlock for premium)
 
 ## 🚀 Launch block (after Phase 3 — single deploy)
 

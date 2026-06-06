@@ -6,10 +6,13 @@ struct RootView: View {
     @Query private var profiles: [UserProfile]
 
     var body: some View {
-        if let profile = profiles.first {
-            MainTabView(profile: profile)
-        } else {
-            OnboardingView()
+        Group {
+            if let profile = profiles.first {
+                MainTabView(profile: profile)
+            } else {
+                OnboardingView()
+            }
         }
+        .task { await PremiumStore.shared.load() }
     }
 }

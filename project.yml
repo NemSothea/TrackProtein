@@ -83,6 +83,7 @@ schemes:
         TrackProtein: all
     run:
       config: Debug
+      storeKitConfiguration: TrackProtein.storekit
     test:
       config: Debug
       targets:

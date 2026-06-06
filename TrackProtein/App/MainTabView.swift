@@ -14,9 +14,12 @@ struct MainTabView: View {
             HistoryView(profile: profile)
                 .tabItem { Label("History", systemImage: "calendar") }
                 .tag(1)
+            StatsView(profile: profile)
+                .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
+                .tag(2)
             SettingsView(profile: profile)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-                .tag(2)
+                .tag(3)
         }
         .tint(.proteinOrange)
         .onOpenURL { url in

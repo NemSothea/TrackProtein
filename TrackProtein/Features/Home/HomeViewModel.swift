@@ -7,6 +7,7 @@ final class HomeViewModel {
     var showQuickAdd = false
     var showFoodSearch = false
     var showBarcodeScan = false
+    var showAILog = false
     var entryToEdit: ProteinEntry?
 
     func todayEntries(from entries: [ProteinEntry]) -> [ProteinEntry] {
