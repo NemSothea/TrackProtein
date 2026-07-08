@@ -13,7 +13,7 @@ struct AIGateView: View {
     }
 }
 
-/// Snap a meal or describe it — Claude estimates the protein, user confirms, entry logged.
+/// Snap a meal photo — the on-device model estimates the protein, user confirms, entry logged.
 struct AILogView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -22,21 +22,7 @@ struct AILogView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Picker("Mode", selection: $viewModel.mode) {
-                        ForEach(AILogViewModel.Mode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                }
-
-                switch viewModel.mode {
-                case .photo: photoSection
-                case .describe: describeSection
-                }
+                photoSection
 
                 estimateSection
 
@@ -53,10 +39,18 @@ struct AILogView: View {
             }
             .sheet(isPresented: $viewModel.showCamera) {
                 CameraPicker { image in
-                    viewModel.selectedImage = image
-                    viewModel.reset()
+                    viewModel.setPhoto(image)
                 }
                 .ignoresSafeArea()
+            }
+            .fullScreenCover(isPresented: $viewModel.showCropper) {
+                if let original = viewModel.originalImage {
+                    PhotoCropView(
+                        image: original,
+                        onConfirm: { viewModel.applyCrop($0) },
+                        onCancel: { viewModel.showCropper = false }
+                    )
+                }
             }
         }
     }
@@ -65,13 +59,25 @@ struct AILogView: View {
 
     private var photoSection: some View {
         Section("Meal photo") {
-            if let image = viewModel.selectedImage {
+            if let image = viewModel.framedImage {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(maxWidth: .infinity)
                     .frame(height: 200)
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(alignment: .bottomTrailing) {
+                        Button { viewModel.recrop() } label: {
+                            Label("Adjust", systemImage: "crop")
+                                .font(.caption.bold())
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.ultraThinMaterial, in: Capsule())
+                        }
+                        .tint(.proteinOrange)
+                        .padding(8)
+                    }
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
             HStack {
@@ -88,13 +94,6 @@ struct AILogView: View {
                 }
             }
             .tint(.proteinOrange)
-        }
-    }
-
-    private var describeSection: some View {
-        Section("What did you eat?") {
-            TextField("e.g. 2 eggs and a protein shake", text: $viewModel.textInput, axis: .vertical)
-                .lineLimit(2...4)
         }
     }
 
@@ -129,6 +128,17 @@ struct AILogView: View {
 
     // MARK: - Result
 
+    /// Display-only macro context from the photo — the app still logs protein only.
+    private func macroPill(_ label: String, grams: Double) -> some View {
+        VStack(spacing: 2) {
+            Text("~\(Int(grams.rounded()))g")
+                .font(.subheadline.weight(.semibold))
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
     private func resultSection(_ estimate: AIEstimate) -> some View {
         Section {
             ForEach(estimate.items) { item in
@@ -149,6 +159,21 @@ struct AILogView: View {
                 Text("Estimated range \(Int(estimate.lowGrams.rounded()))–\(Int(estimate.highGrams.rounded()))g · \(estimate.confidence) confidence")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if let fat = estimate.fatGrams, let carb = estimate.carbGrams,
+                   let calories = estimate.calories {
+                    HStack(spacing: 16) {
+                        macroPill("Fat", grams: fat)
+                        macroPill("Carbs", grams: carb)
+                        VStack(spacing: 2) {
+                            Text("~\(Int(calories.rounded()))")
+                                .font(.subheadline.weight(.semibold))
+                            Text("kcal")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
                 Slider(value: $viewModel.adjustedGrams, in: 0...max(estimate.highGrams * 1.5, 50), step: 1)
                     .tint(.proteinOrange)
                 Text("Adjust if the estimate looks off — it's an estimate, not a measurement.")

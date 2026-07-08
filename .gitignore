@@ -13,3 +13,16 @@ Configs/
 
 # macOS
 .DS_Store
+
+# AI proxy — local secrets & downloaded eval ground-truth data (never commit either)
+proxy/.dev.vars
+proxy/eval/data/
+proxy/node_modules/
+proxy/.wrangler/
+
+# ML — dataset, checkpoints, venv (the exported .mlpackage in Resources/ IS committed)
+ml/data/
+ml/runs/
+ml/.venv/
+ml/__pycache__/
+ml/ProteinEstimator.mlpackage/

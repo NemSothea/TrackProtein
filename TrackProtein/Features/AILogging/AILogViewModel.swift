@@ -7,17 +7,15 @@ import SwiftUI
 @MainActor
 @Observable
 final class AILogViewModel {
-    enum Mode: String, CaseIterable {
-        case photo = "Photo"
-        case describe = "Describe"
-    }
-
-    var mode: Mode = .photo
-    var selectedImage: UIImage?
+    /// Raw photo as picked/snapped — kept so the user can re-frame it.
+    var originalImage: UIImage?
+    /// The square region the user framed; this is exactly what the model analyzes and what
+    /// the preview shows. The model needs the food to fill the frame (see PhotoCropView).
+    var framedImage: UIImage?
+    var showCropper = false
     var photoItem: PhotosPickerItem? {
         didSet { loadPhoto() }
     }
-    var textInput = ""
     var showCamera = false
 
     var isLoading = false
@@ -26,49 +24,51 @@ final class AILogViewModel {
     /// User-adjustable grams, prefilled from the estimate — always editable before saving.
     var adjustedGrams: Double = 0
 
-    var canEstimate: Bool {
-        switch mode {
-        case .photo: selectedImage != nil
-        case .describe: !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-    }
+    var canEstimate: Bool { framedImage != nil }
 
     private func loadPhoto() {
         guard let photoItem else { return }
         Task {
             if let data = try? await photoItem.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
-                selectedImage = image
-                estimate = nil
+                setPhoto(image)
             }
         }
     }
 
+    /// A freshly picked/snapped photo → open the cropper so the user frames the food first.
+    func setPhoto(_ image: UIImage) {
+        originalImage = image
+        framedImage = nil
+        estimate = nil
+        errorMessage = nil
+        adjustedGrams = 0
+        showCropper = true
+    }
+
+    func applyCrop(_ framed: UIImage) {
+        framedImage = framed
+        estimate = nil
+        adjustedGrams = 0
+        showCropper = false
+    }
+
+    func recrop() {
+        if originalImage != nil { showCropper = true }
+    }
+
     func runEstimate() {
-        guard canEstimate, !isLoading else { return }
+        guard let image = framedImage, !isLoading else { return }
         Task {
             isLoading = true
             errorMessage = nil
             defer { isLoading = false }
             do {
-                let result: AIEstimate
-                switch mode {
-                case .photo:
-                    guard let jpeg = selectedImage?.downscaled(maxDimension: 1024)
-                        .jpegData(compressionQuality: 0.7) else {
-                        errorMessage = "Couldn't process that photo — try another one."
-                        return
-                    }
-                    result = try await AIEstimationService.estimate(imageData: jpeg)
-                case .describe:
-                    result = try await AIEstimationService.estimate(text: textInput)
-                }
+                let result = try await LocalEstimationService.estimate(image: image)
                 estimate = result
                 adjustedGrams = result.totalGrams.rounded()
-            } catch AIEstimationService.AIError.notConfigured {
-                errorMessage = "AI logging isn't set up yet. Deploy the proxy (proxy/README.md) and set the URL in AIEstimationService."
             } catch {
-                errorMessage = "Couldn't get an estimate. Check your connection and try again."
+                errorMessage = "Couldn't analyze that photo — try another one."
             }
         }
     }
@@ -88,19 +88,5 @@ final class AILogViewModel {
         estimate = nil
         errorMessage = nil
         adjustedGrams = 0
-    }
-}
-
-extension UIImage {
-    /// Downscale so the longest edge is at most `maxDimension` — keeps AI request bodies small.
-    func downscaled(maxDimension: CGFloat) -> UIImage {
-        let longest = max(size.width, size.height)
-        guard longest > maxDimension else { return self }
-        let scale = maxDimension / longest
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        let renderer = UIGraphicsImageRenderer(size: newSize)
-        return renderer.image { _ in
-            draw(in: CGRect(origin: .zero, size: newSize))
-        }
     }
 }

@@ -2,7 +2,7 @@
 
 > Living task tracker. Update statuses here whenever work completes; this is the single source of truth for "where are we?". Strategy: **build all phases, deploy once at the end** (no App Store until Phase 3 done).
 
-**Last updated:** 2026-06-06 (Phase 3 built) · **Current focus:** Deploy AI proxy (user action) → on-device testing → launch block
+**Last updated:** 2026-07-02 (macro model shipped to iPhone: protein 4.88 g / fat 3.55 g / carb 5.34 g MAE) · **Current focus:** re-run unit tests → M6 real-photo reality check → commit ML work → launch block
 
 ---
 
@@ -49,8 +49,21 @@
 - [x] F17 Stats — Swift Charts: 7/30-day bars vs goal line, average, goal-hit count, best day, top 5 sources. Premium-gated
 - [x] StoreKit 2 paywall — monthly $2.99 / yearly $19.99 / lifetime $39.99, restore, `TrackProtein.storekit` local config wired into scheme; DEBUG dev-unlock toggle (StoreKit config doesn't apply to devicectl launches)
 - [x] F18 CSV export — ShareLink in Settings, premium-gated
-- [ ] **USER ACTION: deploy proxy** (Cloudflare account + Anthropic API key, ~10 min — `proxy/README.md`), then set `proxyURL`/`appSecret` in `AIEstimationService.swift` (⚠️ don't commit the secret — move to a gitignored config if needed)
-- [ ] Test AI flow + paywall on device (use DEBUG dev-unlock for premium)
+- [~] ~~USER ACTION: deploy proxy~~ — **superseded 2026-07-02**: replaced by own on-device Core ML model (see below). `proxy/` kept as reference until ML M5 removes the app's dependency.
+- [ ] Test AI flow + paywall on device (use DEBUG dev-unlock for premium) — AI flow now waits on ML M5
+
+## 🧠 ML — own on-device vision model (decided 2026-07-02, replaces Haiku proxy)
+
+Plan: `ml/PLAN-ML.md` · runs log: `ml/RESULTS.md` · skill: `trackprotein-ml`. Nutrition5k → MobileNetV3-Large + macro head (protein q10/q50/q90 + fat/carb/kcal point estimates) → fp32 `.mlpackage` (fp16 failed parity; see RESULTS.md). Consequences accepted: no per-item breakdown v1, text logging (F16) dropped, AI stays premium-gated. Macros are display-only in the AI estimate (user decision 2026-07-02) — app still tracks protein only.
+
+- [x] M1 Data — 3262/3265 overhead images (~1.2 GB), official depth splits, loader + sanity checks (2755 train / 507 test usable)
+- [x] M1 Baseline-to-beat — predict-train-mean: **MAE 15.14 g**, coverage 75.1% on depth_test
+- [x] M2 Baseline model — run `20260702-175528` (MobileNetV3-L, 224 px, 30 ep, 36 min): **MAE 4.86 g** on depth_test, raw coverage 47.5% (intervals too sharp)
+- [x] M3 Iterate — multiplicative CQR (`calibrate.py`) met the ship gate; then **macro-head retrain** `20260702-190836` (user wants fat/carbs/kcal detail): **protein MAE 4.88 g, coverage 93.5%** (CQR ×0.986, α=.05) + fat 3.55 g / carb 5.34 g / kcal 50.8 MAE on depth_test
+- [x] M4 Core ML export + parity — `ml/ProteinEstimator.mlpackage`: **fp32, 16.1 MB, parity 0.000 g** (fp16 failed parity twice: softplus overflow, then q90 accumulation — see RESULTS.md). Outputs: `quantiles` (3) + `macros` (fat/carb/kcal)
+- [x] M5 App integration (code) — `LocalEstimationService.swift` (MLModel, lazy, eval-crop-parity preprocessing, confidence from interval width), mlpackage in `TrackProtein/Resources/`, AILogging photo-only (Describe mode removed), macro pills in estimate UI (display-only), `AIEstimationService.swift` kept as dead code with optional macro fields added to `AIEstimate`. Device build + install on iPhone 13 done 2026-07-02 (×2: protein-only, then macro model)
+- [ ] M5 verify — unit-test run was interrupted (re-run `xcodebuild … test`); confirm on iPhone: photo → estimate → saved entry with Wi-Fi off
+- [ ] M6 Reality check — 15–20 real meal photos vs USDA-computed truth (needs user's meals + iPhone)
 
 ## 🚀 Launch block (after Phase 3 — single deploy)
 

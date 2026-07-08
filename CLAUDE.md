@@ -15,7 +15,9 @@ xcodegen generate
 xcodebuild -project TrackProtein.xcodeproj -scheme TrackProtein \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 ```
-Or use the project commands: `/run-sim`, `/run-device`, `/audit`, `/review-code`.
+These also run automatically via skills/agents (just ask in plain English, or invoke by name):
+- Skills — `trackprotein-run-sim` (build/run/verify in Simulator), `trackprotein-run-device` (build/run on iPhone), plus `trackprotein-feature`, `trackprotein-ml`, `trackprotein-proxy`.
+- Agents — `trackprotein-auditor` (read-only audit vs PLAN.md), `trackprotein-reviewer` (read-only Swift code review).
 
 ## Structure
 ```

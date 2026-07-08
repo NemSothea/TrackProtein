@@ -15,6 +15,11 @@ struct AIEstimate: Decodable, Sendable {
     let highGrams: Double
     let confidence: String
     let notes: String?
+    /// Display-only macro context from the on-device model (nil from the old proxy).
+    /// The app tracks protein only — these are never logged.
+    var fatGrams: Double?
+    var carbGrams: Double?
+    var calories: Double?
 }
 
 /// Talks to the Cloudflare Worker proxy — the Anthropic API key never ships in the app.
